@@ -18,15 +18,18 @@ const AdminDashboard = () => {
 
   const fetchData = async () => {
     try {
-      const projRes = await axios.get('http://localhost:5000/api/projects', config);
+      const [projRes, userRes] = await Promise.all([
+        axios.get('https://team-task-manager-production-2d3d.up.railway.app/api/projects', config),
+        axios.get('https://team-task-manager-production-2d3d.up.railway.app/api/auth/users', config) // Assuming this route exists
+      ]);
       setProjects(projRes.data);
-      // Note: You'll need a backend route /api/auth/users to fetch all members
+      setUsers(userRes.data);
     } catch (err) { console.error(err); }
   };
 
   const handleCreateProject = async (e) => {
     e.preventDefault();
-    await axios.post('http://localhost:5000/api/projects', { name: projectName }, config);
+    await axios.post('https://team-task-manager-production-2d3d.up.railway.app/api/projects', { name: projectName }, config);
     setProjectName('');
     fetchData();
   };
@@ -34,7 +37,7 @@ const AdminDashboard = () => {
   const handleCreateTask = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/tasks', taskData, config);
+      await axios.post('https://team-task-manager-production-2d3d.up.railway.app/api/tasks', taskData, config);
       alert('Task Assigned Successfully!');
       setTaskData({ title: '', description: '', assignedTo: '', project: '' });
     } catch (err) { alert('Error creating task'); }
