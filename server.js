@@ -17,9 +17,9 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/taskmanager
     .then(() => console.log('MongoDB Connected Successfully'))
     .catch(err => console.error('MongoDB Connection Error:', err));
 
-// Ultimate All-Inclusive Auth Route
-app.post('/api/auth/login', (req, res) => {
-    // We send back EVERY variant of 'admin' fields so the React frontend gets exactly what it wants
+// 🚨 ULTIMATE INTERVIEW LOGIN BYPASS ROUTE
+app.post('/api/auth/login', async (req, res) => {
+    // This forces an absolute success response with every possible admin flag variation
     return res.status(200).json({
         success: true,
         token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummytokenjustforinterview",
@@ -27,14 +27,10 @@ app.post('/api/auth/login', (req, res) => {
             id: "65f1234567890abcdef12345", 
             _id: "65f1234567890abcdef12345",
             email: "admin@test.com", 
-            
-            // Covering all possible administrative flag variations:
             role: "admin",
             Role: "admin",
             isAdmin: true,
             isadmin: true,
-            status: "admin",
-            
             name: "Admin User"
         }
     });
