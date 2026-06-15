@@ -10,7 +10,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('https://team-task-manager-production-2d3d.up.railway.app/api/auth/login', { email, password });
+      const res = await axios.post('/api/auth/login', formData)
       localStorage.setItem('token', res.data.token);
       navigate('/admin');
     } catch (err) {
