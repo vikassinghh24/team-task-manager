@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
+const User = require('./models/User'); // Queries your real MongoDB User model
 
 dotenv.config();
 
@@ -17,23 +18,40 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/taskmanager
     .then(() => console.log('MongoDB Connected Successfully'))
     .catch(err => console.error('MongoDB Connection Error:', err));
 
-// 🚨 ULTIMATE INTERVIEW LOGIN BYPASS ROUTE
+// 🔐 REAL DATABASE AUTHENTICATION ROUTE
 app.post('/api/auth/login', async (req, res) => {
-    // This forces an absolute success response with every possible admin flag variation
-    return res.status(200).json({
-        success: true,
-        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummytokenjustforinterview",
-        user: { 
-            id: "65f1234567890abcdef12345", 
-            _id: "65f1234567890abcdef12345",
-            email: "admin@test.com", 
-            role: "admin",
-            Role: "admin",
-            isAdmin: true,
-            isadmin: true,
-            name: "Admin User"
+    try {
+        const { email, password } = req.body;
+        console.log(`Database query login attempt for: ${email}`);
+
+        // 1. Check if user exists in your real MongoDB collection
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(401).json({ success: false, message: 'Invalid Email or Password' });
         }
-    });
+
+        // 2. Direct database password string match
+        if (user.password !== password) {
+            return res.status(401).json({ success: false, message: 'Invalid Email or Password' });
+        }
+
+        // 3. Send back the exact payload your React frontend expects to authorize the admin
+        return res.status(200).json({
+            success: true,
+            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.validinterviewsandboxauthtoken",
+            user: { 
+                id: user._id, 
+                _id: user._id,
+                email: user.email, 
+                role: user.role || "admin",
+                name: user.name || "Admin User"
+            }
+        });
+
+    } catch (error) {
+        console.error("Database Login Error:", error);
+        res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+    }
 });
 
 // Serve Frontend Static Production Assets from Render
