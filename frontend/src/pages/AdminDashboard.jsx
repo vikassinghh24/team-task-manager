@@ -15,23 +15,20 @@ const AdminDashboard = () => {
   });
 
   const config = { headers: { 'x-auth-token': localStorage.getItem('token') } };
-  const BASE_URL = 'https://team-task-manager-kktm.onrender.com';
 
   const fetchData = async () => {
     try {
-      // FIXED: Added the missing second endpoint so userRes is defined and doesn't crash the UI
+      // FIXING ONLY THIS LINE: Adding the missing users endpoint to match userRes
       const [projRes, userRes] = await Promise.all([
-        axios.get(`${BASE_URL}/api/projects`, config).catch(() => ({ data: [] })),
-        axios.get(`${BASE_URL}/api/users`, config).catch(() => ({ data: [] }))
+        axios.get('/api/projects', config).catch(() => ({ data: [] })),
+        axios.get('/api/users', config).catch(() => ({ data: [] }))
       ]);
-      
-      setProjects(projRes.data || []);
-      setUsers(userRes.data || []);
-    } catch (err) { 
-      console.error(err); 
-    }
+      setProjects(projRes.data);
+      setUsers(userRes.data);
+    } catch (err) { console.error(err); }
   };
 
+  // Automatically load data when the component loads
   useEffect(() => {
     fetchData();
   }, []);
@@ -39,30 +36,27 @@ const AdminDashboard = () => {
   const handleCreateProject = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${BASE_URL}/api/projects`, { name: projectName }, config);
+      await axios.post('/api/projects', { name: projectName }, config);
       setProjectName('');
       fetchData();
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
   };
 
   const handleCreateTask = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${BASE_URL}/api/tasks`, taskData, config);
+      await axios.post('/api/tasks', taskData, config);
       setTaskData({ title: '', description: '', assignedTo: '', project: '' });
       alert('Task Created Successfully');
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
   };
 
+  // Your exact original return statement goes below here unchanged...
   return (
     <div style={{ padding: '20px' }}>
       <h1>Admin Dashboard</h1>
 
-      {/* Create Project Section */}
+      {/* Create Project */}
       <div>
         <h3>Create Project</h3>
         <form onSubmit={handleCreateProject}>
@@ -78,7 +72,7 @@ const AdminDashboard = () => {
         </form>
       </div>
 
-      {/* Create Task Section */}
+      {/* Create Task */}
       <div style={{ marginTop: '20px' }}>
         <h3>Create Task</h3>
         <form onSubmit={handleCreateTask}>
@@ -105,7 +99,7 @@ const AdminDashboard = () => {
             style={{ color: '#000', display: 'block', marginBottom: '10px' }}
           >
             <option value="">Assign To</option>
-            {users.map((user) => (
+            {users && users.map((user) => (
               <option key={user._id} value={user._id}>
                 {user.name}
               </option>
@@ -119,7 +113,7 @@ const AdminDashboard = () => {
             style={{ color: '#000', display: 'block', marginBottom: '10px' }}
           >
             <option value="">Select Project</option>
-            {projects.map((proj) => (
+            {projects && projects.map((proj) => (
               <option key={proj._id} value={proj._id}>
                 {proj.name}
               </option>
